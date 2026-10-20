@@ -59,15 +59,21 @@ async function loadData() {
 
   try {
     const response = await fetch(
-      '/.netlify/functions/warden?action=get'
+      '/.netlify/functions/warden',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'get' })
+      }
     );
 
-    if (!response.ok) {
-      throw new Error('Gagal mendapatkan data jadual.');
+    const result = await response.json();
+
+    if (!response.ok || !result.ok) {
+      throw new Error(result.message || 'Gagal memuatkan jadual.');
     }
 
-    appData = await response.json();
-
+    appData = result.data;
     renderCalendar();
     renderCards();
 
@@ -79,36 +85,5 @@ async function loadData() {
   }
 }
 
-
-try {
-  const response = await fetch(
-    '/.netlify/functions/warden?action=save',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        month: monthKey(),
-        days: cleaned,
-        pin: adminPin
-      })
-    }
-  );
-
-  const result = await response.json();
-
-  if (!response.ok) {
-    throw new Error(result.message || 'Gagal menyimpan jadual.');
-  }
-
-  showStatus(result.message || 'Jadual berjaya disimpan.', 'ok');
-  await loadData();
-} catch (err) {
-  showStatus(err.message || String(err), 'error');
-} finally {
-  $('save').disabled = false;
-};
-loadData();
 </script>
 </body></html>
