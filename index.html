@@ -101,6 +101,55 @@ function byId(id){return appData.roster.find(w=>w.id===id)}
 function digits(phone){return '60'+String(phone).replace(/\D/g,'').replace(/^0/,'')}
 function links(w){return `<div class="actions"><a class="call" href="tel:+${digits(w.phone)}">☎ Call</a><a class="wa" href="https://wa.me/${digits(w.phone)}" target="_blank" rel="noopener">WhatsApp</a></div>`}
 function renderCards(){$('cards').innerHTML=appData.roster.map(w=>`<article class="warden"><h3>${w.name}</h3><div class="muted">${w.phone}</div>${links(w)}</article>`).join('')}
+  
+function renderActivities() {
+  const container = $('activitiesList');
+  container.innerHTML = '';
+
+  const activities = appData.activities || [];
+  const selectedMonth = monthKey();
+
+  const filtered = activities.filter(a => {
+    return a.startDate &&
+      a.endDate &&
+      a.activity &&
+      a.startDate.slice(0, 7) <= selectedMonth &&
+      a.endDate.slice(0, 7) >= selectedMonth;
+  });
+
+  if (!filtered.length) {
+    const empty = document.createElement('p');
+    empty.className = 'muted';
+    empty.textContent =
+      'Tiada aktiviti direkodkan untuk bulan ini.';
+    container.appendChild(empty);
+    return;
+  }
+
+  filtered.forEach(a => {
+    const card = document.createElement('article');
+    card.className = 'warden';
+
+    const title = document.createElement('h3');
+    title.textContent = a.activity;
+    card.appendChild(title);
+
+    const dates = document.createElement('div');
+    dates.className = 'muted';
+    dates.textContent =
+      a.startDate + ' hingga ' + a.endDate;
+    card.appendChild(dates);
+
+    if (a.notes) {
+      const notes = document.createElement('p');
+      notes.textContent = a.notes;
+      card.appendChild(notes);
+    }
+
+    container.appendChild(card);
+  });
+}
+
 function renderCalendar(){
  const cal=$('calendar');cal.innerHTML='';['ISNIN','SELASA','RABU','KHAMIS','JUMAAT','SABTU','AHAD'].forEach(d=>{const e=document.createElement('div');e.className='weekday';e.textContent=d;cal.append(e)});
  for(let i=0;i<offset();i++){const e=document.createElement('div');e.className='day empty';cal.append(e)}
