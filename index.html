@@ -146,13 +146,11 @@ function renderActivities() {
   const activities = appData.activities || [];
   const selectedMonth = monthKey();
 
-  const filtered = activities.filter(a => {
-    return a.startDate &&
-      a.endDate &&
-      a.activity &&
-      a.startDate.slice(0, 7) <= selectedMonth &&
-      a.endDate.slice(0, 7) >= selectedMonth;
-  });
+  const filtered = activities.filter(a =>
+    a.date &&
+    a.activity &&
+    a.date.slice(0, 7) === selectedMonth
+  );
 
   if (!filtered.length) {
     const empty = document.createElement('p');
@@ -163,25 +161,21 @@ function renderActivities() {
     return;
   }
 
+  filtered.sort((a, b) => a.date.localeCompare(b.date));
+
   filtered.forEach(a => {
     const card = document.createElement('article');
     card.className = 'warden';
 
     const title = document.createElement('h3');
     title.textContent = a.activity;
+    title.style.color = a.color || '#183b63';
     card.appendChild(title);
 
-    const dates = document.createElement('div');
-    dates.className = 'muted';
-    dates.textContent =
-      a.startDate + ' hingga ' + a.endDate;
-    card.appendChild(dates);
-
-    if (a.notes) {
-      const notes = document.createElement('p');
-      notes.textContent = a.notes;
-      card.appendChild(notes);
-    }
+    const date = document.createElement('div');
+    date.className = 'muted';
+    date.textContent = a.date;
+    card.appendChild(date);
 
     container.appendChild(card);
   });
@@ -386,6 +380,75 @@ activityDate.addEventListener('change', function () {
 });
 
 updateActivityPreview();
+  
+  /* Simpan aktiviti hujung minggu */
+$('saveActivityBtn').addEventListener('click', async () => {
+  const status = $('activityStatus');
+  const button = $('saveActivityBtn');
+  const date = activityDate.value;
+  const activity = activityType.value;
+  const color = activityColors[activity] || '#2563eb';
+
+  if (!adminOpen || !adminPin) {
+    status.textContent =
+      'Sila log masuk sebagai pentadbir dahulu.';
+    return;
+  }
+
+  if (!date) {
+    status.textContent = 'Sila pilih tarikh aktiviti.';
+    return;
+  }
+
+  // Semak tarikh Sabtu atau Ahad
+  const day = new Date(date + 'T12:00:00').getDay();
+
+  if (day !== 0 && day !== 6) {
+    status.textContent =
+      'Sila pilih tarikh Sabtu atau Ahad.';
+    return;
+  }
+
+  button.disabled = true;
+  status.textContent = 'Sedang menyimpan aktiviti…';
+
+  try {
+    const response = await fetch('/.netlify/functions/warden', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        action: 'saveActivity',
+        payload: {
+          date: date,
+          activity: activity,
+          color: color
+        },
+        pin: adminPin
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.ok) {
+      throw new Error(
+        result.message || 'Gagal menyimpan aktiviti.'
+      );
+    }
+
+    status.textContent =
+      result.message || 'Aktiviti berjaya disimpan.';
+
+    await loadData();
+
+  } catch (err) {
+    status.textContent =
+      err.message || 'Ralat semasa menyimpan aktiviti.';
+  } finally {
+    button.disabled = false;
+  }
+});
 
 
 </script>
