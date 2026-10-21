@@ -5,40 +5,38 @@ exports.handler = async (event) => {
     'Cache-Control': 'no-store'
   };
 
+  const respond = (statusCode, data) => ({
+    statusCode,
+    headers,
+    body: JSON.stringify(data)
+  });
+
   if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers,
-      body: JSON.stringify({
-        message: 'Kaedah tidak dibenarkan.'
-      })
-    };
+    return respond(405, {
+      ok: false,
+      message: 'Kaedah tidak dibenarkan.'
+    });
   }
 
   const apiUrl = process.env.WARDEN_API_URL;
   const apiSecret = process.env.WARDEN_API_SECRET;
 
   if (!apiUrl || !apiSecret) {
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({
-        message: 'Konfigurasi backend belum lengkap.'
-      })
-    };
+    return respond(500, {
+      ok: false,
+      message: 'Konfigurasi backend belum lengkap.'
+    });
   }
 
   try {
     const request = JSON.parse(event.body || '{}');
+    const allowedActions = ['get', 'save', 'saveActivity'];
 
-    if (!['get', 'save'].includes(request.action)) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({
-          message: 'Tindakan tidak sah.'
-        })
-      };
+    if (!allowedActions.includes(request.action)) {
+      return respond(400, {
+        ok: false,
+        message: 'Tindakan tidak sah.'
+      });
     }
 
     const payload = {
@@ -46,15 +44,13 @@ exports.handler = async (event) => {
       secret: apiSecret
     };
 
-    if (request.action === 'save') {
+    if (request.action === 'save' ||
+        request.action === 'saveActivity') {
       if (!request.payload || !request.pin) {
-        return {
-          statusCode: 400,
-          headers,
-          body: JSON.stringify({
-            message: 'Maklumat simpanan tidak lengkap.'
-          })
-        };
+        return respond(400, {
+          ok: false,
+          message: 'Maklumat simpanan tidak lengkap.'
+        });
       }
 
       payload.payload = request.payload;
@@ -71,25 +67,19 @@ exports.handler = async (event) => {
     });
 
     if (!response.ok) {
-      throw new Error('Backend Google Apps Script tidak dapat dicapai.');
+      throw new Error(
+        'Backend Google Apps Script tidak dapat dicapai.'
+      );
     }
 
     const result = await response.json();
 
-    return {
-      statusCode: result.ok === false ? 400 : 200,
-      headers,
-      body: JSON.stringify(result)
-    };
+    return respond(result.ok === false ? 400 : 200, result);
 
   } catch (error) {
-    return {
-      statusCode: 502,
-      headers,
-      body: JSON.stringify({
-        message: 'Sambungan backend gagal. Sila cuba lagi.'
-      })
-    };
+    return respond(502, {
+      ok: false,
+      message: 'Sambungan backend gagal. Sila cuba lagi.'
+    });
   }
 };
-
