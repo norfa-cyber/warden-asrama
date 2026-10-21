@@ -97,5 +97,104 @@ $('month').addEventListener('change', () => {
 /* Muatkan data sebaik sahaja halaman dibuka */
 loadData();
 
+ 
+/* Log masuk pentadbir */
+$('adminToggle').addEventListener('click', () => {
+  if (adminOpen) {
+    adminOpen = false;
+    adminPin = '';
+    $('adminPanel').classList.remove('show');
+    $('adminToggle').textContent = 'Log masuk pentadbir';
+    return;
+  }
+
+  const pin = prompt('Masukkan PIN pentadbir:');
+  if (pin === null || pin.trim() === '') return;
+
+  adminPin = pin.trim();
+  adminOpen = true;
+  $('adminPanel').classList.add('show');
+  $('adminToggle').textContent = 'Tutup panel pentadbir';
+  renderEditor();
+});
+
+/* Tutup panel pentadbir */
+$('closeAdmin').addEventListener('click', () => {
+  adminOpen = false;
+  adminPin = '';
+  $('adminPanel').classList.remove('show');
+  $('adminToggle').textContent = 'Log masuk pentadbir';
+});
+
+/* Simpan jadual bulanan */
+$('save').addEventListener('click', async () => {
+  if (!adminPin) {
+    showStatus('Sila log masuk sebagai pentadbir.', 'error');
+    return;
+  }
+
+  const days = [];
+
+  for (let d = 1; d <= daysInMonth(); d++) {
+    const date = dateStr(d);
+    const selects = [
+      ...document.querySelectorAll(
+        `.editrow select[data-date="${date}"]`
+      )
+    ];
+
+    const ids = selects.map(s => s.value).filter(Boolean);
+
+    if (new Set(ids).size !== ids.length) {
+      showStatus(
+        `Warden yang sama dipilih dua kali pada tarikh ${d}.`,
+        'error'
+      );
+      return;
+    }
+
+    days.push(ids);
+  }
+
+  const button = $('save');
+  button.disabled = true;
+  showStatus('Sedang menyimpan jadual…');
+
+  try {
+    const response = await fetch('/.netlify/functions/warden', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'save',
+        payload: {
+          month: monthKey(),
+          days: days
+        },
+        pin: adminPin
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.ok) {
+      throw new Error(
+        result.message || 'Gagal menyimpan jadual.'
+      );
+    }
+
+    showStatus(
+      result.message || 'Jadual berjaya disimpan.',
+      'ok'
+    );
+
+    await loadData();
+  } catch (err) {
+    showStatus(err.message || String(err), 'error');
+  } finally {
+    button.disabled = false;
+  }
+});
+
+
 </script>
 </body></html>
