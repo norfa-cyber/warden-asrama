@@ -89,7 +89,7 @@
   <div id="editorgrid" class="editorgrid"></div>
 
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
-    <button class="primary" id="save">Simpan jadual bulan ini</button>
+    <button class="primary" id="save">Simpan Jadual</button>
     <button id="closeAdmin">Tutup</button>
   </div>
 
@@ -98,7 +98,7 @@
 
   <h2>Aktiviti Hujung Minggu</h2>
 
-  <label for="activityDate">Tarikh aktiviti</label>
+  <label for="activityDate">Tarikh Aktiviti</label>
   <input type="date" id="activityDate">
 
   <label for="activityType">Jenis aktiviti</label>
@@ -329,11 +329,14 @@ $('save').addEventListener('click', async () => {
     }
 
     showStatus(
-      result.message || 'Jadual berjaya disimpan.',
-      'ok'
-    );
+    result.message || 'Jadual berjaya disimpan.',
+    'ok'
+  );
 
-    await loadData();
+  await loadData();
+
+  alert('Jadual bulan ini telah dikemaskini!');
+    
   } catch (err) {
     showStatus(err.message || String(err), 'error');
   } finally {
