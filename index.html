@@ -136,6 +136,10 @@ function renderCards(){$('cards').innerHTML=appData.roster.map(w=>`<article clas
   
 function renderActivities() {
   const container = $('activitiesList');
+
+  // Panel Aktiviti Mingguan sudah dibuang.
+  if (!container) return;
+
   container.innerHTML = '';
 
   const activities = appData.activities || [];
