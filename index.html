@@ -186,7 +186,35 @@ function renderCalendar(){
  for(let i=0;i<offset();i++){const e=document.createElement('div');e.className='day empty';cal.append(e)}
  for(let d=1;d<=daysInMonth();d++){const e=document.createElement('div');e.className='day';const date=dateStr(d);e.innerHTML=`<div class="date">${d}</div>`;const ids=appData.schedule[date]||[];
   if(!ids.length){const n=document.createElement('div');n.className='muted';n.textContent='Belum ditetapkan';e.append(n)}
-  ids.forEach(id=>{const w=byId(id);if(!w)return;const b=document.createElement('button');b.className='duty';b.style.background=w.color;b.innerHTML=`<b>${w.short}</b>`;b.onclick=()=>showWarden(w);e.append(b)});cal.append(e)
+  // Paparkan nama warden bertugas
+ids.forEach(id => {
+  const w = byId(id);
+  if (!w) return;
+
+  const b = document.createElement('button');
+  b.className = 'duty';
+  b.style.background = w.color;
+  b.innerHTML = `<b>${w.short}</b>`;
+  b.onclick = () => showWarden(w);
+  e.append(b);
+});
+
+// Paparkan aktiviti pada tarikh yang sama
+const dayActivities = (appData.activities || [])
+  .filter(a => a.date === date && a.activity);
+
+dayActivities.forEach(a => {
+  const activity = document.createElement('div');
+  activity.className = 'duty';
+  activity.style.background = a.color || '#2563eb';
+  activity.style.color = '#ffffff';
+  activity.style.fontWeight = 'bold';
+  activity.textContent = a.activity;
+  activity.style.overflowWrap = 'anywhere';
+  e.append(activity);
+});
+
+cal.append(e);
  }
 }
 function showWarden(w){const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:#0008;display:grid;place-items:center;padding:18px;z-index:20';overlay.innerHTML=`<div style="background:white;border-radius:15px;padding:22px;max-width:390px;width:100%"><h2 style="margin-top:0">${w.short}</h2><p>${w.phone}</p>${links(w)}<button id="closeDialog" style="width:100%;margin-top:10px">Tutup</button></div>`;document.body.append(overlay);overlay.querySelector('#closeDialog').onclick=()=>overlay.remove();overlay.onclick=e=>{if(e.target===overlay)overlay.remove()}}
