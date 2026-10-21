@@ -438,9 +438,11 @@ $('saveActivityBtn').addEventListener('click', async () => {
     }
 
     status.textContent =
-      result.message || 'Aktiviti berjaya disimpan.';
+  result.message || 'Aktiviti berjaya disimpan.';
 
-    await loadData();
+  await loadData();
+
+  alert('Aktiviti berjaya disimpan.');;
 
   } catch (err) {
     status.textContent =
