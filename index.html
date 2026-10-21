@@ -85,5 +85,17 @@ async function loadData() {
   }
 }
 
+/* Butang muat semula jadual */
+$('refresh').addEventListener('click', loadData);
+
+/* Apabila bulan ditukar */
+$('month').addEventListener('change', () => {
+  renderCalendar();
+  if (adminOpen) renderEditor();
+});
+
+/* Muatkan data sebaik sahaja halaman dibuka */
+loadData();
+
 </script>
 </body></html>
