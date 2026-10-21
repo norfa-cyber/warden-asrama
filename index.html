@@ -79,12 +79,53 @@
     <p class="muted">Memuatkan aktiviti...</p>
   </div>
 </section>
+
 <section id="adminPanel" class="panel">
-<h2 style="margin-top:0">Kemaskini jadual bulanan</h2>
-<p class="muted">Pilih sehingga dua warden bagi setiap tarikh. Selepas disimpan, perubahan akan dipaparkan kepada semua pelajar yang membuka pautan yang sama.</p>
-<div id="editorgrid" class="editorgrid"></div>
-<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="primary" id="save">Simpan jadual bulan ini</button><button id="closeAdmin">Tutup</button></div>
+  <h2 style="margin-top:0">Kemaskini jadual bulanan</h2>
+
+  <p class="muted">
+    Pilih sehingga dua warden bagi setiap tarikh. Selepas disimpan,
+    perubahan akan dipaparkan kepada semua pelajar yang membuka pautan yang sama.
+  </p>
+
+  <div id="editorgrid" class="editorgrid"></div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+    <button class="primary" id="save">Simpan jadual bulan ini</button>
+    <button id="closeAdmin">Tutup</button>
+  </div>
+
+  <hr style="margin:24px 0;border:0;border-top:1px solid #dbe3ec">
+
+  <h2>Aktiviti Hujung Minggu</h2>
+  <p class="muted">
+    Aktiviti hanya boleh ditetapkan pada hari Sabtu atau Ahad.
+  </p>
+
+  <label for="activityDate">Tarikh aktiviti</label>
+  <input type="date" id="activityDate">
+
+  <label for="activityType">Jenis aktiviti</label>
+  <select id="activityType">
+    <option value="Lawatan">Lawatan</option>
+    <option value="Outing (L)">Outing (L)</option>
+    <option value="Outing (P)">Outing (P)</option>
+    <option value="PB Pilihan">PB Pilihan</option>
+    <option value="PB Wajib">PB Wajib</option>
+  </select>
+
+  <div id="activityColorPreview"
+       style="margin:12px 0;padding:10px;border-radius:8px;background:#2563eb;color:white">
+    Lawatan
+  </div>
+
+  <button class="primary" type="button" id="saveActivityBtn">
+    Simpan Aktiviti
+  </button>
+
+  <p id="activityStatus" class="muted" role="status"></p>
 </section>
+
 <h2 style="margin:24px 0 6px">Senarai warden</h2><div class="muted">Tekan Call atau WhatsApp pada kad warden untuk menghubunginya terus.</div>
 <div id="cards" class="cards"></div>
 <div class="note"><b>Makluman:</b> Jadual bersama disimpan dalam Google Sheets. Sila sahkan semua nama dan nombor telefon sebelum sistem diedarkan kepada pelajar.</div>
@@ -218,7 +259,7 @@ $('adminToggle').addEventListener('click', () => {
   if (adminOpen) {
     adminOpen = false;
     adminPin = '';
-    $('adminPanel').classList.remove('show');
+    $('').classList.remove('show');
     $('adminToggle').textContent = 'Log masuk pentadbir';
     return;
   }
@@ -228,7 +269,7 @@ $('adminToggle').addEventListener('click', () => {
 
   adminPin = pin.trim();
   adminOpen = true;
-  $('adminPanel').classList.add('show');
+  $('').classList.add('show');
   $('adminToggle').textContent = 'Tutup panel pentadbir';
   renderEditor();
 });
@@ -237,7 +278,7 @@ $('adminToggle').addEventListener('click', () => {
 $('closeAdmin').addEventListener('click', () => {
   adminOpen = false;
   adminPin = '';
-  $('adminPanel').classList.remove('show');
+  $('').classList.remove('show');
   $('adminToggle').textContent = 'Log masuk pentadbir';
 });
 
