@@ -30,7 +30,12 @@ exports.handler = async (event) => {
 
   try {
     const request = JSON.parse(event.body || '{}');
-    const allowedActions = ['get', 'save', 'saveActivity'];
+    const allowedActions = [
+  'get',
+  'save',
+  'saveActivity',
+  'diagnoseSecret'
+  ];
 
     if (!allowedActions.includes(request.action)) {
       return respond(400, {
