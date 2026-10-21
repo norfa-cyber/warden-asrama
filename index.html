@@ -7,6 +7,10 @@
   background: linear-gradient(135deg, #18365f, #294a76);
   color: white;
   padding: 20px 28px;
+  display: grid;
+  grid-template-columns: 80px 1fr 80px;
+  align-items: center;
+  text-align: center;
 }
 
 .header-title {
@@ -20,18 +24,21 @@
   height: 72px;
   object-fit: contain;
   flex-shrink: 0;
+  justify-self: center;
 }
 
 .header-title h1 {
   margin: 0;
   font-size: 28px;
   line-height: 1.25;
+   text-align: center;
 }
 
 .header-subtitle {
   margin-top: 6px;
   color: #dce8f8;
   font-size: 14px;
+  text-align: center;
 }
 
 @media (max-width: 600px) {
