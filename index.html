@@ -351,6 +351,46 @@ $('save').addEventListener('click', async () => {
   }
 });
 
+const activityColors = {
+  'Lawatan': '#2563eb',
+  'Outing (L)': '#16a34a',
+  'Outing (P)': '#db2777',
+  'PB Pilihan': '#9333ea',
+  'PB Wajib': '#ea580c'
+};
+
+const activityType = document.getElementById('activityType');
+const activityColorPreview =
+  document.getElementById('activityColorPreview');
+const activityDate = document.getElementById('activityDate');
+
+function updateActivityPreview() {
+  const selected = activityType.value;
+  const color = activityColors[selected] || '#2563eb';
+
+  activityColorPreview.textContent = selected;
+  activityColorPreview.style.backgroundColor = color;
+  activityColorPreview.style.color = '#ffffff';
+}
+
+activityType.addEventListener('change', updateActivityPreview);
+
+activityDate.addEventListener('change', function () {
+  if (!this.value) return;
+
+  const date = new Date(this.value + 'T12:00:00');
+  const day = date.getDay();
+
+  if (day !== 0 && day !== 6) {
+    document.getElementById('activityStatus').textContent =
+      'Sila pilih tarikh Sabtu atau Ahad.';
+  } else {
+    document.getElementById('activityStatus').textContent = '';
+  }
+});
+
+updateActivityPreview();
+
 
 </script>
 </body></html>
