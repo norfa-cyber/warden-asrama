@@ -247,15 +247,14 @@ $('month').addEventListener('change', () => {
 });
 
 /* Muatkan data sebaik sahaja halaman dibuka */
-loadData();
+loadData(); 
 
- 
 /* Log masuk pentadbir */
 $('adminToggle').addEventListener('click', () => {
   if (adminOpen) {
     adminOpen = false;
     adminPin = '';
-    $('').classList.remove('show');
+    $('adminPanel').classList.remove('show');
     $('adminToggle').textContent = 'Log masuk pentadbir';
     return;
   }
@@ -265,7 +264,7 @@ $('adminToggle').addEventListener('click', () => {
 
   adminPin = pin.trim();
   adminOpen = true;
-  $('').classList.add('show');
+  $('adminPanel').classList.add('show');
   $('adminToggle').textContent = 'Tutup panel pentadbir';
   renderEditor();
 });
@@ -274,9 +273,10 @@ $('adminToggle').addEventListener('click', () => {
 $('closeAdmin').addEventListener('click', () => {
   adminOpen = false;
   adminPin = '';
-  $('').classList.remove('show');
+  $('adminPanel').classList.remove('show');
   $('adminToggle').textContent = 'Log masuk pentadbir';
 });
+
 
 /* Simpan jadual bulanan */
 $('save').addEventListener('click', async () => {
