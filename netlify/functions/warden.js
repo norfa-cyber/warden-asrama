@@ -30,12 +30,14 @@ exports.handler = async (event) => {
 
   try {
     const request = JSON.parse(event.body || '{}');
+
     const allowedActions = [
-  'get',
-  'save',
-  'saveActivity',
-  'diagnoseSecret'
-  ];
+      'get',
+      'verifyPin',
+      'save',
+      'saveActivity',
+      'diagnoseSecret'
+    ];
 
     if (!allowedActions.includes(request.action)) {
       return respond(400, {
@@ -49,9 +51,31 @@ exports.handler = async (event) => {
       secret: apiSecret
     };
 
-    if (request.action === 'save' ||
-        request.action === 'saveActivity') {
-      if (!request.payload || !request.pin) {
+    // PIN diperlukan untuk pengesahan log masuk
+    // dan untuk menyimpan perubahan.
+    if (
+      request.action === 'verifyPin' ||
+      request.action === 'save' ||
+      request.action === 'saveActivity'
+    ) {
+      if (
+        typeof request.pin !== 'string' ||
+        request.pin.trim() === ''
+      ) {
+        return respond(400, {
+          ok: false,
+          message: 'PIN pentadbir diperlukan.'
+        });
+      }
+
+      payload.pin = request.pin.trim();
+    }
+
+    if (
+      request.action === 'save' ||
+      request.action === 'saveActivity'
+    ) {
+      if (!request.payload) {
         return respond(400, {
           ok: false,
           message: 'Maklumat simpanan tidak lengkap.'
@@ -59,7 +83,6 @@ exports.handler = async (event) => {
       }
 
       payload.payload = request.payload;
-      payload.pin = request.pin;
     }
 
     const response = await fetch(apiUrl, {
