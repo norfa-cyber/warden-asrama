@@ -270,8 +270,9 @@ $('month').addEventListener('change', () => {
 /* Muatkan data sebaik sahaja halaman dibuka */
 loadData(); 
 
-/* Log masuk pentadbir */
-$('adminToggle').addEventListener('click', () => {
+
+/* Log masuk pentadbir dengan pengesahan PIN */
+$('adminToggle').addEventListener('click', async () => {
   if (adminOpen) {
     adminOpen = false;
     adminPin = '';
@@ -281,13 +282,50 @@ $('adminToggle').addEventListener('click', () => {
   }
 
   const pin = prompt('Masukkan PIN pentadbir:');
+
   if (pin === null || pin.trim() === '') return;
 
-  adminPin = pin.trim();
-  adminOpen = true;
-  $('adminPanel').classList.add('show');
-  $('adminToggle').textContent = 'Tutup panel pentadbir';
-  renderEditor();
+  const enteredPin = pin.trim();
+  const button = $('adminToggle');
+
+  button.disabled = true;
+  button.textContent = 'Menyemak PIN...';
+
+  try {
+    const response = await fetch('/.netlify/functions/warden', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        action: 'verifyPin',
+        pin: enteredPin
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || result.ok !== true) {
+      alert(result.message || 'PIN pentadbir tidak betul.');
+      return;
+    }
+
+    adminPin = enteredPin;
+    adminOpen = true;
+    $('adminPanel').classList.add('show');
+    button.textContent = 'Tutup panel pentadbir';
+
+    renderEditor();
+
+  } catch (error) {
+    alert('Tidak dapat mengesahkan PIN. Sila cuba lagi.');
+  } finally {
+    button.disabled = false;
+
+    if (!adminOpen) {
+      button.textContent = 'Log masuk pentadbir';
+    }
+  }
 });
 
 /* Tutup panel pentadbir */
@@ -297,6 +335,7 @@ $('closeAdmin').addEventListener('click', () => {
   $('adminPanel').classList.remove('show');
   $('adminToggle').textContent = 'Log masuk pentadbir';
 });
+
 
 
 /* Simpan jadual bulanan */
