@@ -270,7 +270,10 @@ async function loadData() {
 }
 
 /* Butang muat semula jadual */
-$('refresh').addEventListener('click', loadData);
+$('refresh').addEventListener('click', () => {
+  setCurrentMonth();
+  loadData();
+});
 
 /* Apabila bulan ditukar */
 $('month').addEventListener('change', () => {
@@ -279,8 +282,19 @@ $('month').addEventListener('change', () => {
   if (adminOpen) renderEditor();
 });
 
+/* Dapatkan bulan semasa */
+function setCurrentMonth() {
+  const now = new Date();
+
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+
+  $('month').value = `${year}-${month}`;
+}
+
 /* Muatkan data sebaik sahaja halaman dibuka */
-loadData(); 
+setCurrentMonth();
+loadData();
 
 
 /* Log masuk pentadbir dengan pengesahan PIN */
